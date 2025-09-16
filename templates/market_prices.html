@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Market Price Updates</h2>
+<ul>
+    {% for item, price in prices.items() %}
+    <li>{{ item|title }}: ₹{{ price }} per quintal</li>
+    {% endfor %}
+</ul>
+{% endblock %}

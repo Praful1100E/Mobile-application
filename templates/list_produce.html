@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Listed Produce</h2>
+<form method="post">
+    <label for="name">Product Name:</label>
+    <input type="text" id="name" name="name" required>
+    <label for="quantity">Quantity (kg):</label>
+    <input type="number" id="quantity" name="quantity" required>
+    <label for="price">Price per kg:</label>
+    <input type="number" step="0.01" id="price" name="price" required>
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" required>
+    <button type="submit">List Product</button>
+</form>
+<h3>Your Products:</h3>
+<ul>
+    {% for product in products %}
+    <li>{{ product.name }} - {{ product.quantity }}kg at ₹{{ product.price }}/kg in {{ product.location }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

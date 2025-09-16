@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Transactions</h2>
+<ul>
+    {% for transaction in transactions %}
+    <li>
+        Transaction ID: {{ transaction.id }} - Product ID: {{ transaction.product_id }} - Buyer: {{ transaction.buyer }} - Amount: ₹{{ transaction.amount }} - Status: {{ transaction.status }}
+    </li>
+    {% else %}
+    <li>No transactions found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome, {{ username }}!</h2>
+<p>You are logged in as a {{ role }}.</p>
+{% if role == 'farmer' %}
+<p><a href="{{ url_for('list_produce') }}">List your produce</a> to start selling.</p>
+{% endif %}
+<p><a href="{{ url_for('browse_produce') }}">Browse available produce</a> to buy.</p>
+{% endblock %}

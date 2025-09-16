@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Direct Link for {{ product.name }}</h2>
+<p>Share this link with buyers: <a href="{{ link }}">{{ link }}</a></p>
+<p>Product Details: {{ product.quantity }}kg at ₹{{ product.price }}/kg in {{ product.location }}</p>
+{% endblock %}
