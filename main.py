@@ -35,7 +35,12 @@ class LoginScreen(Screen):
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         layout.add_widget(Label(text='Login', font_size=24, color=(1,1,1,1)))
         self.username = TextInput(hint_text='Username', background_color=(0.2,0.2,0.2,1), foreground_color=(1,1,1,1))
+        password_layout = BoxLayout(orientation='horizontal', spacing=10)
         self.password = TextInput(hint_text='Password', password=True, background_color=(0.2,0.2,0.2,1), foreground_color=(1,1,1,1))
+        self.show_password_btn = Button(text='Show', size_hint_x=None, width=80, background_color=(0,1,1,1))
+        self.show_password_btn.bind(on_press=self.toggle_password)
+        password_layout.add_widget(self.password)
+        password_layout.add_widget(self.show_password_btn)
         login_btn = Button(text='Login', background_color=(0,1,1,1))
         login_btn.bind(on_press=self.animate_btn)
         login_btn.bind(on_release=self.login)
@@ -43,7 +48,7 @@ class LoginScreen(Screen):
         register_btn.bind(on_press=self.animate_btn)
         register_btn.bind(on_release=self.go_to_register)
         layout.add_widget(self.username)
-        layout.add_widget(self.password)
+        layout.add_widget(password_layout)
         layout.add_widget(login_btn)
         layout.add_widget(register_btn)
         self.add_widget(layout)
@@ -64,20 +69,29 @@ class LoginScreen(Screen):
     def go_to_register(self, instance):
         self.manager.current = 'register'
 
+    def toggle_password(self, instance):
+        self.password.password = not self.password.password
+        instance.text = 'Hide' if self.password.password else 'Show'
+
 class RegisterScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         layout.add_widget(Label(text='Register', font_size=24))
         self.username = TextInput(hint_text='Username')
+        password_layout = BoxLayout(orientation='horizontal', spacing=10)
         self.password = TextInput(hint_text='Password', password=True)
+        self.show_password_btn = Button(text='Show', size_hint_x=None, width=80, background_color=(0,1,1,1))
+        self.show_password_btn.bind(on_press=self.toggle_password)
+        password_layout.add_widget(self.password)
+        password_layout.add_widget(self.show_password_btn)
         self.role = Spinner(text='farmer', values=('farmer', 'buyer'))
         register_btn = Button(text='Register')
         register_btn.bind(on_press=self.register)
         back_btn = Button(text='Back to Login')
         back_btn.bind(on_press=self.go_to_login)
         layout.add_widget(self.username)
-        layout.add_widget(self.password)
+        layout.add_widget(password_layout)
         layout.add_widget(self.role)
         layout.add_widget(register_btn)
         layout.add_widget(back_btn)
