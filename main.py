@@ -35,7 +35,12 @@ class LoginScreen(Screen):
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         layout.add_widget(Label(text='Login', font_size=24, color=(1,1,1,1)))
         self.username = TextInput(hint_text='Username', background_color=(0.2,0.2,0.2,1), foreground_color=(1,1,1,1))
+        password_layout = BoxLayout(orientation='horizontal', spacing=10)
         self.password = TextInput(hint_text='Password', password=True, background_color=(0.2,0.2,0.2,1), foreground_color=(1,1,1,1))
+        self.show_password_btn = Button(text='Show', size_hint_x=None, width=80, background_color=(0,1,1,1))
+        self.show_password_btn.bind(on_press=self.toggle_password)
+        password_layout.add_widget(self.password)
+        password_layout.add_widget(self.show_password_btn)
         login_btn = Button(text='Login', background_color=(0,1,1,1))
         login_btn.bind(on_press=self.animate_btn)
         login_btn.bind(on_release=self.login)
@@ -43,7 +48,7 @@ class LoginScreen(Screen):
         register_btn.bind(on_press=self.animate_btn)
         register_btn.bind(on_release=self.go_to_register)
         layout.add_widget(self.username)
-        layout.add_widget(self.password)
+        layout.add_widget(password_layout)
         layout.add_widget(login_btn)
         layout.add_widget(register_btn)
         self.add_widget(layout)
@@ -64,20 +69,29 @@ class LoginScreen(Screen):
     def go_to_register(self, instance):
         self.manager.current = 'register'
 
+    def toggle_password(self, instance):
+        self.password.password = not self.password.password
+        instance.text = 'Hide' if self.password.password else 'Show'
+
 class RegisterScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         layout.add_widget(Label(text='Register', font_size=24))
         self.username = TextInput(hint_text='Username')
+        password_layout = BoxLayout(orientation='horizontal', spacing=10)
         self.password = TextInput(hint_text='Password', password=True)
+        self.show_password_btn = Button(text='Show', size_hint_x=None, width=80, background_color=(0,1,1,1))
+        self.show_password_btn.bind(on_press=self.toggle_password)
+        password_layout.add_widget(self.password)
+        password_layout.add_widget(self.show_password_btn)
         self.role = Spinner(text='farmer', values=('farmer', 'buyer'))
         register_btn = Button(text='Register')
         register_btn.bind(on_press=self.register)
         back_btn = Button(text='Back to Login')
         back_btn.bind(on_press=self.go_to_login)
         layout.add_widget(self.username)
-        layout.add_widget(self.password)
+        layout.add_widget(password_layout)
         layout.add_widget(self.role)
         layout.add_widget(register_btn)
         layout.add_widget(back_btn)
@@ -96,9 +110,15 @@ class RegisterScreen(Screen):
     def go_to_login(self, instance):
         self.manager.current = 'login'
 
+    def toggle_password(self, instance):
+        self.password.password = not self.password.password
+        instance.text = 'Hide' if self.password.password else 'Show'
+
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.username = ''  # Initialize to avoid AttributeError
+        self.role = ''  # Initialize to avoid AttributeError
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         self.welcome_label = Label(text='', font_size=18, color=(1,1,1,1))
         self.layout.add_widget(self.welcome_label)
@@ -109,16 +129,24 @@ class HomeScreen(Screen):
         self.add_widget(self.layout)
 
     def on_enter(self):
-        self.welcome_label.text = f'Welcome {self.username}, role: {self.role}'
-        self.buttons_layout.clear_widgets()
-        self.buttons_layout.add_widget(Button(text='Browse Produce', on_press=self.go_to_browse, background_color=(0,1,1,1)))
-        self.buttons_layout.add_widget(Button(text='Transactions', on_press=self.go_to_transactions, background_color=(0,1,1,1)))
-        self.buttons_layout.add_widget(Button(text='Weather', on_press=self.go_to_weather, background_color=(0,1,1,1)))
-        if self.role == 'farmer':
-            self.buttons_layout.add_widget(Button(text='Govt Schemes', on_press=self.go_to_schemes, background_color=(0,1,1,1)))
-        self.buttons_layout.add_widget(Button(text='Market Prices', on_press=self.go_to_prices, background_color=(0,1,1,1)))
-        if self.role == 'farmer':
-            self.buttons_layout.add_widget(Button(text='List Produce', on_press=self.go_to_list, background_color=(0,1,1,1)))
+        if not self.username:
+            self.welcome_label.text = 'Please log in first'
+            self.buttons_layout.clear_widgets()
+            self.buttons_layout.add_widget(Button(text='Go to Login', on_press=self.go_to_login, background_color=(0,1,1,1)))
+        else:
+            self.welcome_label.text = f'Welcome {self.username}, role: {self.role}'
+            self.buttons_layout.clear_widgets()
+            self.buttons_layout.add_widget(Button(text='Browse Produce', on_press=self.go_to_browse, background_color=(0,1,1,1)))
+            self.buttons_layout.add_widget(Button(text='Transactions', on_press=self.go_to_transactions, background_color=(0,1,1,1)))
+            self.buttons_layout.add_widget(Button(text='Weather', on_press=self.go_to_weather, background_color=(0,1,1,1)))
+            if self.role == 'farmer':
+                self.buttons_layout.add_widget(Button(text='Govt Schemes', on_press=self.go_to_schemes, background_color=(0,1,1,1)))
+            self.buttons_layout.add_widget(Button(text='Market Prices', on_press=self.go_to_prices, background_color=(0,1,1,1)))
+            if self.role == 'farmer':
+                self.buttons_layout.add_widget(Button(text='List Produce', on_press=self.go_to_list, background_color=(0,1,1,1)))
+
+    def go_to_login(self, instance):
+        self.manager.current = 'login'
 
     def go_to_browse(self, instance):
         self.manager.current = 'browse'
@@ -161,13 +189,40 @@ class ListProduceScreen(Screen):
         self.add_widget(layout)
 
     def list_product(self, instance):
+        try:
+            username = self.manager.get_screen('home').username
+            if not username:
+                popup = Popup(title='Error', content=Label(text='Please log in to list products'), size_hint=(0.8, 0.4))
+                popup.open()
+                return
+        except AttributeError:
+            popup = Popup(title='Error', content=Label(text='Please log in to list products'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
+        if not self.name_input.text.strip():
+            popup = Popup(title='Error', content=Label(text='Product name is required'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
+        try:
+            quantity = float(self.quantity.text)
+            price = float(self.price.text)
+            if quantity <= 0 or price <= 0:
+                raise ValueError('Quantity and price must be positive')
+        except ValueError:
+            popup = Popup(title='Error', content=Label(text='Invalid quantity or price'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
+        if not self.location.text.strip():
+            popup = Popup(title='Error', content=Label(text='Location is required'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
         product_id = len(products) + 1
         products.append({
             'id': product_id,
-            'farmer': self.manager.get_screen('home').username,
+            'farmer': username,
             'name': self.name_input.text,
-            'quantity': float(self.quantity.text),
-            'price': float(self.price.text),
+            'quantity': quantity,
+            'price': price,
             'location': self.location.text
         })
         popup = Popup(title='Success', content=Label(text='Product listed'), size_hint=(0.8, 0.4))
@@ -226,21 +281,45 @@ class NegotiateScreen(Screen):
         self.add_widget(self.layout)
 
     def on_enter(self):
-        product = next((p for p in products if p['id'] == self.product_id), None)
-        if product:
-            self.product_label.text = f"{product['name']} - {product['quantity']}kg @ ₹{product['price']}/kg"
-            neg = next((n for n in negotiations if n['product_id'] == self.product_id and n['buyer'] == self.manager.get_screen('home').username), None)
-            if neg:
-                self.offers_label.text = 'Offers: ' + ', '.join(map(str, neg['offers']))
+        try:
+            username = self.manager.get_screen('home').username
+            if not username:
+                self.product_label.text = 'Please log in to negotiate'
+                self.offers_label.text = ''
+                return
+            product = next((p for p in products if p['id'] == self.product_id), None)
+            if product:
+                self.product_label.text = f"{product['name']} - {product['quantity']}kg @ ₹{product['price']}/kg"
+                neg = next((n for n in negotiations if n['product_id'] == self.product_id and n['buyer'] == username), None)
+                if neg:
+                    self.offers_label.text = 'Offers: ' + ', '.join(map(str, neg['offers']))
+                else:
+                    neg = {'product_id': self.product_id, 'buyer': username, 'offers': []}
+                    negotiations.append(neg)
+                    self.offers_label.text = 'Offers: None'
             else:
-                neg = {'product_id': self.product_id, 'buyer': self.manager.get_screen('home').username, 'offers': []}
-                negotiations.append(neg)
-                self.offers_label.text = 'Offers: None'
+                self.product_label.text = 'Product not found'
+                self.offers_label.text = ''
+        except AttributeError:
+            self.product_label.text = 'Please log in to negotiate'
+            self.offers_label.text = ''
 
     def submit_offer(self, instance):
+        if not self.offer_input.text.strip():
+            popup = Popup(title='Error', content=Label(text='Offer cannot be empty'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
+        try:
+            offer = float(self.offer_input.text)
+            if offer <= 0:
+                raise ValueError('Offer must be positive')
+        except ValueError:
+            popup = Popup(title='Error', content=Label(text='Invalid offer amount'), size_hint=(0.8, 0.4))
+            popup.open()
+            return
         neg = next((n for n in negotiations if n['product_id'] == self.product_id and n['buyer'] == self.manager.get_screen('home').username), None)
         if neg:
-            neg['offers'].append(float(self.offer_input.text))
+            neg['offers'].append(offer)
             self.offers_label.text = 'Offers: ' + ', '.join(map(str, neg['offers']))
             self.offer_input.text = ''
 
@@ -263,10 +342,16 @@ class TransactionsScreen(Screen):
 
     def on_enter(self):
         self.trans_layout.clear_widgets()
-        username = self.manager.get_screen('home').username
-        for t in transactions:
-            if t['buyer'] == username or any(p['farmer'] == username for p in products if p['id'] == t['product_id']):
-                self.trans_layout.add_widget(Label(text=f"Product {t['product_id']} - ₹{t['amount']} - {t['status']}", size_hint_y=None, height=50))
+        try:
+            username = self.manager.get_screen('home').username
+            if not username:
+                self.trans_layout.add_widget(Label(text="Please log in to view transactions", size_hint_y=None, height=50))
+                return
+            for t in transactions:
+                if t['buyer'] == username or any(p['farmer'] == username for p in products if p['id'] == t['product_id']):
+                    self.trans_layout.add_widget(Label(text=f"Product {t['product_id']} - ₹{t['amount']} - {t['status']}", size_hint_y=None, height=50))
+        except AttributeError:
+            self.trans_layout.add_widget(Label(text="Please log in to view transactions", size_hint_y=None, height=50))
 
     def go_back(self, instance):
         self.manager.current = 'home'
@@ -288,12 +373,18 @@ class WeatherScreen(Screen):
     def fetch_weather(self):
         try:
             response = requests.get('https://wttr.in/Delhi?format=j1')
+            response.raise_for_status()  # Raise an exception for bad status codes
             data = response.json()
-            temp = data['current_condition'][0]['temp_C']
-            desc = data['current_condition'][0]['weatherDesc'][0]['value']
-            self.weather_label.text = f'Delhi: {temp}°C, {desc}'
-        except:
-            self.weather_label.text = 'Failed to fetch weather'
+            if 'current_condition' in data and len(data['current_condition']) > 0:
+                temp = data['current_condition'][0].get('temp_C', 'N/A')
+                desc = data['current_condition'][0].get('weatherDesc', [{'value': 'N/A'}])[0].get('value', 'N/A')
+                self.weather_label.text = f'Delhi: {temp}°C, {desc}'
+            else:
+                self.weather_label.text = 'Weather data unavailable'
+        except requests.RequestException as e:
+            self.weather_label.text = f'Failed to fetch weather: {str(e)}'
+        except (KeyError, IndexError, ValueError) as e:
+            self.weather_label.text = 'Error parsing weather data'
 
     def go_back(self, instance):
         self.manager.current = 'home'
